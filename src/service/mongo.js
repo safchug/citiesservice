@@ -13,5 +13,8 @@ module.exports = () => {
 module.exports.Manager = {
     saveUser(obj) {
         return db.collection('users').insertOne(obj);
+    },
+    isLoginTaken(login) {
+        return db.collection('users').findOne({login});
     }
 }

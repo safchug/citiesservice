@@ -26,7 +26,11 @@ class User {
             .catch(err => console.log(err));
     }
 
-    save() {
+    async save() {
+        //validation
+        let isTaken = await mongo.Manager.isLoginTaken(this.login);
+        if(isTaken) return Promise.reject('taken');
+
         return mongo.Manager.saveUser(this);
     }
 
