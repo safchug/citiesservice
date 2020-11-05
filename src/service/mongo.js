@@ -20,5 +20,30 @@ module.exports.Manager = {
 
     getUserWithId(id) {
         return db.collection('users').findOne({id: id});
+    },
+
+    insertCity(obj) {
+        return db.collection('cities').insertOne(obj);
+    },
+
+    countCities() {
+        return db.collection('cities').count();
+    },
+
+    updateCityWithId(id, updatedFields) {
+        let query = {id: Number.parseInt(id)};
+        console.log('query', query);
+        let newValues = {$set: {...updatedFields}};
+        console.log(newValues);
+        return db.collection('cities').updateOne(query, newValues);
+    },
+
+    removeCityWithId(id) {
+        let query = {id: Number.parseInt(id)};
+
+        return db.collection('cities').deleteOne(query);
+    },
+    getCityWithId(id) {
+        return db.collection('cities').findOne();
     }
 }
