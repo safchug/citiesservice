@@ -12,10 +12,26 @@ exports.citiesByQuery = (req, res) => {
 
 }
 
-exports.getCityById = (req, res) => {
-    let id = req.params.id;
-    mongo.Manager.getCityWithId(id)
-        .then(result=> res.json(result));
+exports.getCityById = async (req, res) => {
+    try {
+        let id = req.params.id;
+        let city = await mongo.Manager.getCityWithId(id);
+        let user = await mongo.Manager.getUserWithId(city.userId);
+        let respose = {};
+        respose.name = city.name;
+        respose.location = city.location;
+        respose.population = city.population;
+        respose.area = city.area;
+        respose.found = city.found;
+        respose.user = {};
+        respose.user.name = user.name;
+        respose.user.mail = user.mail;
+        respose.user.birthday = user.birhday;
+        res.json(respose);
+    } catch (err) {
+        console.log(err);
+        res.json({message: 'something went wrong'});
+    }
 }
 
 exports.addCity = async (req, res) => {

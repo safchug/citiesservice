@@ -3,10 +3,12 @@ var mongo = require('../service/mongo');
 var uid = require('uid/secure');
 
 class User {
-    constructor(name, login) {
+    constructor(name, login, mail, birthday) {
         this.id = uid.uid(16);
         this.name = name;
         this.login = login;
+        this.mail = mail;
+        this.birthday = birthday;
     }
 
     static createUser(obj) {
