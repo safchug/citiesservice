@@ -16,5 +16,9 @@ module.exports.Manager = {
     },
     getUserWithLogin(login) {
         return db.collection('users').findOne({login: login});
+    },
+
+    getUserWithId(id) {
+        return db.collection('users').findOne({id: id});
     }
 }

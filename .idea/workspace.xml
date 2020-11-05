@@ -4,10 +4,9 @@
     <list default="true" id="29d2531f-3928-42cf-9faa-00a9b1c4e3cd" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/default.config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config/default.config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/models/User.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/User.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/service/mongo.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/service/mongo.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/token.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/token.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +50,7 @@
       <workItem from="1604501349266" duration="10783000" />
       <workItem from="1604513060426" duration="1367000" />
       <workItem from="1604522673520" duration="749000" />
-      <workItem from="1604560502004" duration="2102000" />
+      <workItem from="1604560502004" duration="5147000" />
     </task>
     <servers />
   </component>
