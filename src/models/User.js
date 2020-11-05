@@ -28,10 +28,14 @@ class User {
 
     async save() {
         //validation
-        let isTaken = await mongo.Manager.isLoginTaken(this.login);
-        if(isTaken) return Promise.reject('taken');
+        let user = await User.getUserIfExist(this.login);
+        if(user) return Promise.reject('taken');
 
         return mongo.Manager.saveUser(this);
+    }
+
+    static getUserIfExist(login) {
+        return mongo.Manager.getUserWithLogin(login);
     }
 
     static verifyPass(pass, hash) {
