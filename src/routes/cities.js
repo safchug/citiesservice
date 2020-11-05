@@ -3,11 +3,19 @@ const {uid} = require('uid/secure');
 const {fetchExistedData} = require('../utils/validation');
 
 exports.citiesByQuery = (req, res) => {
-    res.json({message: 'cities is going to be provided'});
+    let name = req.query.query;
+    if(name) {
+        mongo.Manager.getCitiesWithQuery(name).then(result=> {
+            res.json(result);
+        })
+    }
+
 }
 
 exports.getCityById = (req, res) => {
-    res.json({message: 'city id'});
+    let id = req.params.id;
+    mongo.Manager.getCityWithId(id)
+        .then(result=> res.json(result));
 }
 
 exports.addCity = async (req, res) => {

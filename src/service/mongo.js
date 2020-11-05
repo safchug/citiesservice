@@ -43,7 +43,15 @@ module.exports.Manager = {
 
         return db.collection('cities').deleteOne(query);
     },
+
     getCityWithId(id) {
-        return db.collection('cities').findOne();
+        let query = {id: Number.parseInt(id)};
+        console.log(query);
+        return db.collection('cities').findOne(query);
+    },
+
+    getCitiesWithQuery(name) {
+        let query = {name: name};
+        return db.collection('cities').find(query).toArray();
     }
 }
