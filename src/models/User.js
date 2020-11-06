@@ -1,10 +1,10 @@
 var bcrypt = require('bcryptjs');
 var mongo = require('../service/mongo');
-var uid = require('uid/secure');
+var {uid} = require('uid/secure');
 
 class User {
     constructor(name, login, mail, birthday) {
-        this.id = uid.uid(16);
+        this.id = uid(16);
         this.name = name;
         this.login = login;
         this.mail = mail;

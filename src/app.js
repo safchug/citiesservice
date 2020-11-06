@@ -26,5 +26,4 @@ app.post('/cities', authorization, cities.addCity);
 app.put('/cities/:id', authorization, cities.updateCity);
 app.delete('/cities/:id', authorization, cities.delete);
 
-
 module.exports = app;

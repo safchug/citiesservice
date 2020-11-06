@@ -1,13 +1,14 @@
 const mongo = require('../service/mongo');
 const {uid} = require('uid/secure');
-const {fetchExistedData} = require('../utils/validation');
+const {fetchExistedData, isUpdateRequestPassedData} = require('../utils/validation');
 
 exports.citiesByQuery = (req, res) => {
     let name = req.query.query;
     if(name) {
         mongo.Manager.getCitiesWithQuery(name).then(result=> {
+            delete result._id;
             res.json(result);
-        })
+        }).catch(err=> console.log(err));
     }
 
 }
@@ -64,8 +65,12 @@ exports.updateCity = async (req, res) => {
     try {
         let {name, location, population, area, found} = req.body;
         let id = req.params.id;
+
+        if (!isUpdateRequestPassedData(req.body)) throw new Error('You didnt pass any data');
         let updatedFildes = fetchExistedData(req.body);
+
         let user = req.user;
+        if(!user) {throw new Error('You are not logined')}
 
         let city = await mongo.Manager.getCityWithId(id);
         if (city.userId === user.id) {
@@ -83,6 +88,7 @@ exports.updateCity = async (req, res) => {
 
     } catch (err) {
         console.log(err);
+        res.json({message: err.message});
     }
 }
 

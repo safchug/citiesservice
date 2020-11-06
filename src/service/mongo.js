@@ -4,6 +4,7 @@ var dbname = "citiesService";
 
 var db;
 
+
 module.exports = () => {
     MongoClient.connect(url).then((client)=>{
         db = client.db(dbname);
@@ -50,8 +51,10 @@ module.exports.Manager = {
         return db.collection('cities').findOne(query);
     },
 
-    getCitiesWithQuery(name) {
-        let query = {name: name};
-        return db.collection('cities').find(query).toArray();
+    getCitiesWithQuery(reqQuery) {
+        let query = {name: reqQuery};
+        return db.collection('cities')
+            .find(query, {projection: {id: 1, name: 2,
+                    population: 3, area: 4, found: 5, location: 6}}).toArray();
     }
 }

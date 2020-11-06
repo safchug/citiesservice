@@ -17,3 +17,13 @@ exports.fetchExistedData = (obj)=> {
 
     return updatedFildes;
 }
+
+exports.isUpdateRequestPassedData = (obj) => {
+    let {name, location, population, area, found} = obj;
+
+    if(!name && !location && !population && !area && !found) {
+        return false;
+    }
+
+    return true;
+}
