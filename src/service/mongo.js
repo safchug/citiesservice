@@ -56,5 +56,9 @@ module.exports.Manager = {
         return db.collection('cities')
             .find(query, {projection: {id: 1, name: 2,
                     population: 3, area: 4, found: 5, location: 6}}).toArray();
+    },
+
+    getAllCities() {
+        return db.collection('cities').find({}).toArray();
     }
 }

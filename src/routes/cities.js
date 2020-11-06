@@ -19,6 +19,15 @@ exports.citiesByQuery = (req, res) => {
 
 
         }).catch(err=> console.log(err));
+    } else {
+        mongo.Manager.getAllCities()
+            .then(result => {
+                for(let city of result) {
+                    delete city._id;
+                }
+
+                res.json(result);
+            });
     }
 
 }
