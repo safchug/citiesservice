@@ -6,8 +6,18 @@ exports.citiesByQuery = (req, res) => {
     let name = req.query.query;
     if(name) {
         mongo.Manager.getCitiesWithQuery(name).then(result=> {
-            delete result._id;
-            res.json(result);
+
+            if(result.length === 0) {
+                res.json({message: 'There is no match'});
+            } else {
+                for(let city of result) {
+                    delete city._id;
+                }
+
+                res.json(result);
+            }
+
+
         }).catch(err=> console.log(err));
     }
 
