@@ -1,36 +1,36 @@
 const expres = require('express');
 const citiesService = require('../service/cities');
+const authorization = require('../midlewares/authorization');
 const {uid} = require('uid/secure');
 const {fetchExistedData, isUpdateRequestPassedData} = require('../utils/validation');
 
 const router = expres.Router();
 
-router.get('/cities', (req, res, next) => {
-    let name = req.query.query;
-    if(name) {
-        citiesService.getCitiesWithQuery(name).then(result=> {
+router.get('/cities', async(req, res, next) => {
+    try {
+        let name = req.query.query;
+        if(name) {
+            let citiesList = await citiesService.getCitiesWithQuery(name);
 
-            if(result.length === 0) {
+            if(citiesList.length === 0) {
                 res.json({message: 'There is no match'});
             } else {
-                for(let city of result) {
+                for(let city of citiesList) {
                     delete city._id;
                 }
 
-                res.json(result);
+                res.json(citiesList);
+            }
+        } else {
+            let allCitiesList = await citiesService.getAllCities();
+            for(let city of allCitiesList) {
+                delete city._id;
             }
 
-
-        }).catch(err=> console.log(err));
-    } else {
-        citiesService.getAllCities()
-            .then(result => {
-                for(let city of result) {
-                    delete city._id;
-                }
-
-                res.json(result);
-            });
+            res.json(allCitiesList);
+        }
+    } catch (err) {
+        next(err);
     }
 
 });
@@ -56,7 +56,7 @@ router.get('/cities/:id', async (req, res) => {
     }
 });
 
-router.post('/cities' , async (req, res) => {
+router.post('/cities' , authorization, async (req, res) => {
     try {
         let {name, location, population, area, found} = req.body;
 
@@ -82,7 +82,7 @@ router.post('/cities' , async (req, res) => {
     }
 });
 
-router.put('/cities/:id', async (req, res) => {
+router.put('/cities/:id', authorization, async (req, res) => {
     try {
         let {name, location, population, area, found} = req.body;
         let id = req.params.id;
@@ -93,35 +93,26 @@ router.put('/cities/:id', async (req, res) => {
         let user = req.user;
         if(!user) {throw new Error('You are not logined')}
 
-        let city = await citiesService.getCityWithId(id);
-        if (city.userId === user.id) {
-            citiesService.updateCityWithId(id, updatedFildes)
-                .then(result => {
-                    if(result.result.n !== 0) {
-                        res.json({message: `city ${id} has been updated`})
-                    } else {
-                        res.json({message: `the city with id: ${id} dosn't exist`});
-                    }
-                }).catch(err => console.log(err));
+            let affectedCities = await citiesService
+                .updateCityWithIdAndUserId(id, updatedFildes, user.id);
+        if(affectedCities.result.nModified > 0 ) {
+            res.json({message: `The city ${id} has been updated`});
         } else {
             res.json({message: "you can not do this"});
         }
-
     } catch (err) {
         console.log(err);
         res.json({message: err.message});
     }
 });
 
-router.delete('/cities/:id' ,async (req, res) => {
+router.delete('/cities/:id' , authorization, async (req, res) => {
     try {
         let id = req.params.id;
-
-        let city = await citiesService.getCityWithId(id);
         let user = req.user;
 
-        if(city.userId === user.id) {
-            await citiesService.removeCityWithId(id);
+        let removedCities = await citiesService.removeCityWithId(id, user.id);
+        if(removedCities.deletedCount > 0) {
             res.json({message: `city ${id} has been removed`});
         } else {
             res.json({message: 'You can`t do this'});
