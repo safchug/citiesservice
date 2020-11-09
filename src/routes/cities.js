@@ -1,11 +1,14 @@
-const mongo = require('../service/mongo');
+const expres = require('express');
+const citiesService = require('../service/cities');
 const {uid} = require('uid/secure');
 const {fetchExistedData, isUpdateRequestPassedData} = require('../utils/validation');
 
-exports.citiesByQuery = (req, res) => {
+const router = expres.Router();
+
+router.get('/cities', (req, res, next) => {
     let name = req.query.query;
     if(name) {
-        mongo.Manager.getCitiesWithQuery(name).then(result=> {
+        citiesService.getCitiesWithQuery(name).then(result=> {
 
             if(result.length === 0) {
                 res.json({message: 'There is no match'});
@@ -20,7 +23,7 @@ exports.citiesByQuery = (req, res) => {
 
         }).catch(err=> console.log(err));
     } else {
-        mongo.Manager.getAllCities()
+        citiesService.getAllCities()
             .then(result => {
                 for(let city of result) {
                     delete city._id;
@@ -30,13 +33,12 @@ exports.citiesByQuery = (req, res) => {
             });
     }
 
-}
-
-exports.getCityById = async (req, res) => {
+});
+router.get('/cities/:id', async (req, res) => {
     try {
         let id = req.params.id;
-        let city = await mongo.Manager.getCityWithId(id);
-        let user = await mongo.Manager.getUserWithId(city.userId);
+        let city = await citiesService.getCityWithId(id);
+        let user = await citiesService.getUserWithId(city.userId);
         let respose = {};
         respose.name = city.name;
         respose.location = city.location;
@@ -52,9 +54,9 @@ exports.getCityById = async (req, res) => {
         console.log(err);
         res.json({message: 'something went wrong'});
     }
-}
+});
 
-exports.addCity = async (req, res) => {
+router.post('/cities' , async (req, res) => {
     try {
         let {name, location, population, area, found} = req.body;
 
@@ -67,20 +69,20 @@ exports.addCity = async (req, res) => {
             res.json({message: 'population is required'});
         }
 
-        let cityId = await mongo.Manager.countCities();
+        let cityId = await citiesService.countCities();
 
         let city = {id: cityId + 1, name, location, population,
             area, found, userId: req.user.id};
 
-        await mongo.Manager.insertCity(city);
+        await citiesService.insertCity(city);
         console.log('add City');
         res.json({message: 'The city has been added'});
     } catch (err) {
         res.json({message: 'something went wrong!'});
     }
-}
+});
 
-exports.updateCity = async (req, res) => {
+router.put('/cities/:id', async (req, res) => {
     try {
         let {name, location, population, area, found} = req.body;
         let id = req.params.id;
@@ -91,9 +93,9 @@ exports.updateCity = async (req, res) => {
         let user = req.user;
         if(!user) {throw new Error('You are not logined')}
 
-        let city = await mongo.Manager.getCityWithId(id);
+        let city = await citiesService.getCityWithId(id);
         if (city.userId === user.id) {
-            mongo.Manager.updateCityWithId(id, updatedFildes)
+            citiesService.updateCityWithId(id, updatedFildes)
                 .then(result => {
                     if(result.result.n !== 0) {
                         res.json({message: `city ${id} has been updated`})
@@ -109,17 +111,17 @@ exports.updateCity = async (req, res) => {
         console.log(err);
         res.json({message: err.message});
     }
-}
+});
 
-exports.delete = async (req, res) => {
+router.delete('/cities/:id' ,async (req, res) => {
     try {
         let id = req.params.id;
 
-        let city = await mongo.Manager.getCityWithId(id);
+        let city = await citiesService.getCityWithId(id);
         let user = req.user;
 
         if(city.userId === user.id) {
-            await mongo.Manager.removeCityWithId(id);
+            await citiesService.removeCityWithId(id);
             res.json({message: `city ${id} has been removed`});
         } else {
             res.json({message: 'You can`t do this'});
@@ -127,4 +129,6 @@ exports.delete = async (req, res) => {
     } catch (err) {
         console.log(err);
     }
-}
+});
+
+module.exports = router;

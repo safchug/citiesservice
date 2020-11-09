@@ -31,8 +31,8 @@ module.exports.Manager = {
         return db.collection('cities').count();
     },
 
-    updateCityWithId(id, updatedFields) {
-        let query = {id: Number.parseInt(id)};
+    updateCityWithId(id, updatedFields, userId) {
+        let query = {id: Number.parseInt(id), userId};
         console.log('query', query);
         let newValues = {$set: {...updatedFields}};
         console.log(newValues);

@@ -1,5 +1,5 @@
 var bcrypt = require('bcryptjs');
-var mongo = require('../service/mongo');
+var userService = require('../service/user');
 var {uid} = require('uid/secure');
 
 class User {
@@ -33,17 +33,16 @@ class User {
         let user = await User.getUserIfExist(this.login);
         if(user) return Promise.reject('taken');
 
-        return mongo.Manager.saveUser(this);
+        return userService.saveUser(this);
     }
 
     static getUserIfExist(login) {
-        return mongo.Manager.getUserWithLogin(login);
+        return userService.getUserWithLogin(login);
     }
 
     static verifyPass(pass, hash) {
         return bcrypt.compare(pass, hash);
     }
 }
-
 
 module.exports = User;

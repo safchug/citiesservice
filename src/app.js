@@ -1,13 +1,11 @@
 const express = require('express');
 const config = require('../config');
-const db = require('./service/mongo');
+const db = require('./models');
 const authorization = require('./midlewares/authorization');
+const errorHandler = require('./midlewares/errorhandler');
 
-//Starting a connection to mongo
-db();
-
-const user = require('./routes/user');
-const cities = require('./routes/cities');
+const userRouter = require('./routes/user');
+const citiesRouter = require('./routes/cities');
 const cors = require('cors');
 
 const app = express();
@@ -16,14 +14,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
+app.use('/api', userRouter);
+app.use('/api', citiesRouter);
 
-app.post('/registration', user.registration);
-app.post('/login', user.login);
-
-app.get('/cities', cities.citiesByQuery);
-app.get('/cities/:id', cities.getCityById);
-app.post('/cities', authorization, cities.addCity);
-app.put('/cities/:id', authorization, cities.updateCity);
-app.delete('/cities/:id', authorization, cities.delete);
+app.use(errorHandler);
 
 module.exports = app;

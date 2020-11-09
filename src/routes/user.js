@@ -1,7 +1,10 @@
+const express = require('express');
 const User = require("../models/User");
 const jwt = require('../utils/token');
 
-exports.registration = (req, res) => {
+const router = express.Router();
+
+router.post('/registration', (req, res) => {
     let {name, login, password, mail, birthday} = req.body;
 
     if (!name ||    !login || !password) {
@@ -19,9 +22,9 @@ exports.registration = (req, res) => {
                 res.json({message: 'something went wrong!'});
             }
         });
-}
+});
 
-exports.login = (req, res) => {
+router.post('/login', (req, res) => {
     let {login, password} = req.body;
 
     if (!login || !password) {
@@ -46,4 +49,6 @@ exports.login = (req, res) => {
         })
         .catch(err=> console.log(err));
 
-}
+});
+
+module.exports = router;
