@@ -66,11 +66,12 @@ async function getCityWithQuery(req, res, next)  {
 
 }
 
-async function getCityWithId (req, res)  {
+async function getCityWithId (req, res, next)  {
 
     try {
         let id = req.params.id;
         let city = await citiesService.getCityWithId(id);
+        if(!city) throw new Error('bad reques').status = 400;
         let user = await userService.getUserWithId(city.userId);
         let respose = {};
         respose.name = city.name;
@@ -85,11 +86,11 @@ async function getCityWithId (req, res)  {
         res.json(respose);
     } catch (err) {
         console.log(err);
-        res.json({message: 'something went wrong'});
+        next(err);
     }
 }
 
-async function addCity(req, res) {
+async function addCity(req, res, next) {
     try {
         let {name, location, population, area, found} = req.body;
 
@@ -102,7 +103,7 @@ async function addCity(req, res) {
         console.log('add City');
         res.json({message: 'The city has been added'});
     } catch (err) {
-        res.json({message: 'something went wrong!'});
+       next(err);
     }
 }
 
@@ -112,24 +113,21 @@ async function updateSity(req, res) {
         let {name, location, population, area, found} = req.body;
         let id = req.params.id;
 
-        if (!isUpdateRequestPassedData(req.body)) throw new Error('You didnt pass any data');
         let updatedFildes = fetchExistedData(req.body);
 
         let user = req.user;
-        if(!user) {throw new Error('You are not logined')}
 
         let affectedCities = await citiesService
             .updateCityWithIdAndUserId(id, updatedFildes, user.id);
         if(affectedCities.result.nModified > 0 ) {
             res.json({message: `The city ${id} has been updated`});
         } else {
-            res.status = 403;
-            res.json({message: "you can not do this"});
+            let myErr = new Error('None of cities was updated');
+            myErr.code = 403;
+            throw myErr;
         }
     } catch (err) {
-        console.log(err);
-        res.status = 500;
-        res.json({message: err.message});
+        next(err);
     }
 }
 
@@ -142,8 +140,9 @@ async function deleteCity(req, res, next) {
         if(removedCities.deletedCount > 0) {
             res.json({message: `city ${id} has been removed`});
         } else {
-            res.status = 403;
-            res.json({message: 'You can`t do this'});
+            let myErr = new Error('None of cities was removed');
+            myErr.code = 403;
+            throw myErr;
         }
     } catch (err) {
         console.log(err);

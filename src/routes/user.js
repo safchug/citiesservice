@@ -2,34 +2,38 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const User = require("../models/User");
 const jwt = require('../utils/token');
+const validation = require('../midlewares/validation');
+const userSchema = require('../schemas/userSchemas');
 
 const router = express.Router();
 const urlencoded = bodyParser.urlencoded({extended: true});
 
-router.post('/registration', urlencoded, async (req, res, next) => {
+router.post('/registration',
+    urlencoded,
+    validation(userSchema.registration, 'body'),
+    rerist);
+
+router.post('/login', urlencoded,
+    validation(userSchema.login, 'body'),
+    login);
+
+async function rerist(req, res, next)  {
     try {
         let {name, login, password, mail, birthday} = req.body;
-
-        if (!name ||    !login || !password) {
-            res.json({message: 'Pass all nessesary info'});
-        }
 
         let user = new User(name, login, mail, birthday);
 
         await user.hashPass(password);
         await user.save();
+        res.json('The user has been registred');
     } catch (err) {
         next(err);
     }
-});
+}
 
-router.post('/login', urlencoded, async (req, res, next) => {
+async function login(req, res, next) {
     try {
         let {login, password} = req.body;
-
-        if (!login || !password) {
-            res.json({message: 'Pass your credentials'});
-        }
 
         let user = await User.getUserIfExist(login);
         if (user) {
@@ -38,14 +42,18 @@ router.post('/login', urlencoded, async (req, res, next) => {
                 let accessToken = jwt.createAccessToken(user.id);
                 res.json(accessToken);
             } else {
-                res.json({message: 'the passwords don`t match'});
+                let myErr = new Error('The passwords don`t match');
+                myErr.code = 401;
+                throw myErr;
             }
         } else {
-            res.json({message: 'This user doesnt exist'});
+            let myErr = new Error('This user doesnt exist');
+            myErr.code = 401;
+            throw myErr;
         }
     } catch (err) {
         next(err);
     }
-});
+}
 
 module.exports = router;
