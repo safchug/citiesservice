@@ -12,6 +12,13 @@ module.exports = {
         return db.collection('cities').count();
     },
 
+    async getTheLastId() {
+        db = await getDb();
+
+        let lastRecord = await db.collection('cities').find({}).limit(1).sort({id:-1}).toArray();
+        return (lastRecord.length === 0)? 0: lastRecord[0].id;
+        },
+
     async updateCityWithIdAndUserId(id, updatedFields, userId) {
         db = await getDb();
         let query = {id: Number.parseInt(id), userId};

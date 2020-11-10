@@ -1,54 +1,51 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const User = require("../models/User");
 const jwt = require('../utils/token');
 
 const router = express.Router();
+const urlencoded = bodyParser.urlencoded({extended: true});
 
-router.post('/registration', (req, res) => {
-    let {name, login, password, mail, birthday} = req.body;
+router.post('/registration', urlencoded, async (req, res, next) => {
+    try {
+        let {name, login, password, mail, birthday} = req.body;
 
-    if (!name ||    !login || !password) {
-        res.json({message: 'Pass all nessesary info'});
+        if (!name ||    !login || !password) {
+            res.json({message: 'Pass all nessesary info'});
+        }
+
+        let user = new User(name, login, mail, birthday);
+
+        await user.hashPass(password);
+        await user.save();
+    } catch (err) {
+        next(err);
     }
-
-    let user = new User(name, login, mail, birthday);
-    user.hashPass(password).then(()=> user.save())
-        .then(() => res.json({message: 'you`ve been registred'}))
-        .catch(err=> {
-            console.log(err);
-            if(err === 'taken') {
-                res.json({message: 'this login is already taken!'});
-            } else {
-                res.json({message: 'something went wrong!'});
-            }
-        });
 });
 
-router.post('/login', (req, res) => {
-    let {login, password} = req.body;
+router.post('/login', urlencoded, async (req, res, next) => {
+    try {
+        let {login, password} = req.body;
 
-    if (!login || !password) {
-        res.json({message: 'Pass your credentials'});
-    }
+        if (!login || !password) {
+            res.json({message: 'Pass your credentials'});
+        }
 
-    User.getUserIfExist(login)
-        .then(user=> {
-            if(user) {
-                User.verifyPass(password, user.hash)
-                    .then(isVerified => {
-                        if(isVerified) {
-                            let accessToken = jwt.createAccessToken(user.id);
-                            res.json(accessToken);
-                        } else {
-                            res.json({message: 'the passwords don`t match'});
-                        }
-                    }).catch(err=> console.log(err));
+        let user = await User.getUserIfExist(login);
+        if (user) {
+            let isVerified = await User.verifyPass(password, user.hash);
+            if (isVerified) {
+                let accessToken = jwt.createAccessToken(user.id);
+                res.json(accessToken);
             } else {
-                res.json({message: 'this user doesn`t exist'});
+                res.json({message: 'the passwords don`t match'});
             }
-        })
-        .catch(err=> console.log(err));
-
+        } else {
+            res.json({message: 'This user doesnt exist'});
+        }
+    } catch (err) {
+        next(err);
+    }
 });
 
 module.exports = router;

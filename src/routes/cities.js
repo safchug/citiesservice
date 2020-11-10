@@ -1,12 +1,43 @@
 const expres = require('express');
+const bodyParser = require('body-parser');
 const citiesService = require('../service/cities');
+const userService = require('../service/user');
+
 const authorization = require('../midlewares/authorization');
 const {uid} = require('uid/secure');
 const {fetchExistedData, isUpdateRequestPassedData} = require('../utils/validation');
+const validation = require('../midlewares/validation');
+const sitiesSchema = require('../schemas/citiesSchemas');
 
 const router = expres.Router();
+const urlencoded = bodyParser.urlencoded({extended: true});
 
-router.get('/cities', async(req, res, next) => {
+router.get('/cities', getCityWithQuery);
+
+router.get('/cities/:id',
+    validation(sitiesSchema.paramId, 'params'),
+    getCityWithId
+);
+
+router.post('/cities' ,
+    urlencoded , authorization,
+    validation(sitiesSchema.addCity, 'body'),
+    addCity
+);
+
+router.put('/cities/:id',
+    validation(sitiesSchema.paramId, 'params'),
+    urlencoded, authorization,
+    updateSity
+);
+
+router.delete('/cities/:id' ,
+    validation(sitiesSchema.paramId, 'params'),
+    authorization,
+    deleteCity
+);
+
+async function getCityWithQuery(req, res, next)  {
     try {
         let name = req.query.query;
         if(name) {
@@ -33,12 +64,14 @@ router.get('/cities', async(req, res, next) => {
         next(err);
     }
 
-});
-router.get('/cities/:id', async (req, res) => {
+}
+
+async function getCityWithId (req, res)  {
+
     try {
         let id = req.params.id;
         let city = await citiesService.getCityWithId(id);
-        let user = await citiesService.getUserWithId(city.userId);
+        let user = await userService.getUserWithId(city.userId);
         let respose = {};
         respose.name = city.name;
         respose.location = city.location;
@@ -54,22 +87,13 @@ router.get('/cities/:id', async (req, res) => {
         console.log(err);
         res.json({message: 'something went wrong'});
     }
-});
+}
 
-router.post('/cities' , authorization, async (req, res) => {
+async function addCity(req, res) {
     try {
         let {name, location, population, area, found} = req.body;
 
-        //a liitle validation
-        if (!name) {
-            res.json({message: 'name is required'});
-        } else if (!location) {
-            res.json({message: 'location is required'});
-        } else if (!population) {
-            res.json({message: 'population is required'});
-        }
-
-        let cityId = await citiesService.countCities();
+        let cityId = await citiesService.getTheLastId();
 
         let city = {id: cityId + 1, name, location, population,
             area, found, userId: req.user.id};
@@ -80,9 +104,10 @@ router.post('/cities' , authorization, async (req, res) => {
     } catch (err) {
         res.json({message: 'something went wrong!'});
     }
-});
+}
 
-router.put('/cities/:id', authorization, async (req, res) => {
+async function updateSity(req, res) {
+
     try {
         let {name, location, population, area, found} = req.body;
         let id = req.params.id;
@@ -93,20 +118,22 @@ router.put('/cities/:id', authorization, async (req, res) => {
         let user = req.user;
         if(!user) {throw new Error('You are not logined')}
 
-            let affectedCities = await citiesService
-                .updateCityWithIdAndUserId(id, updatedFildes, user.id);
+        let affectedCities = await citiesService
+            .updateCityWithIdAndUserId(id, updatedFildes, user.id);
         if(affectedCities.result.nModified > 0 ) {
             res.json({message: `The city ${id} has been updated`});
         } else {
+            res.status = 403;
             res.json({message: "you can not do this"});
         }
     } catch (err) {
         console.log(err);
+        res.status = 500;
         res.json({message: err.message});
     }
-});
+}
 
-router.delete('/cities/:id' , authorization, async (req, res) => {
+async function deleteCity(req, res, next) {
     try {
         let id = req.params.id;
         let user = req.user;
@@ -115,11 +142,13 @@ router.delete('/cities/:id' , authorization, async (req, res) => {
         if(removedCities.deletedCount > 0) {
             res.json({message: `city ${id} has been removed`});
         } else {
+            res.status = 403;
             res.json({message: 'You can`t do this'});
         }
     } catch (err) {
         console.log(err);
+        next(err);
     }
-});
+}
 
 module.exports = router;

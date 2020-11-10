@@ -9,7 +9,7 @@ module.exports = async (req, res, next) => {
         next();
     } catch (err) {
         console.log(err);
-        res.status(404);
+        res.status(401);
         res.json({message: 'access is forbiten'});
     }
 }
