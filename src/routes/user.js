@@ -19,9 +19,9 @@ router.post('/login', urlencoded,
 
 async function rerist(req, res, next)  {
     try {
-        let {name, login, password, mail, birthday} = req.body;
+        let {name, password, mail, birthday} = req.body;
 
-        let user = new User(name, login, mail, birthday);
+        let user = new User(name, mail, birthday);
 
         await user.hashPass(password);
         await user.save();
@@ -33,9 +33,9 @@ async function rerist(req, res, next)  {
 
 async function login(req, res, next) {
     try {
-        let {login, password} = req.body;
+        let {mail, password} = req.body;
 
-        let user = await User.getUserIfExist(login);
+        let user = await User.getUserIfExist(mail);
         if (user) {
             let isVerified = await User.verifyPass(password, user.hash);
             if (isVerified) {
