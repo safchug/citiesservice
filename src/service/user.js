@@ -6,9 +6,9 @@ module.exports = {
         return db.collection('users').insertOne(obj);
     },
 
-    async getUserWithLogin(login) {
+    async getUserWithMail(mail) {
         db = await getDb();
-        return db.collection('users').findOne({login: login});
+        return db.collection('users').findOne({mail: mail});
     },
 
     async getUserWithId(id) {

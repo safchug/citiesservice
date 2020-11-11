@@ -3,10 +3,9 @@ var userService = require('../service/user');
 var {uid} = require('uid/secure');
 
 class User {
-    constructor(name, login, mail, birthday) {
+    constructor(name, mail, birthday) {
         this.id = uid(16);
         this.name = name;
-        this.login = login;
         this.mail = mail;
         this.birthday = birthday;
     }
@@ -36,8 +35,8 @@ class User {
         return userService.saveUser(this);
     }
 
-    static getUserIfExist(login) {
-        return userService.getUserWithLogin(login);
+    static getUserIfExist(mail) {
+        return userService.getUserWithMail(mail);
     }
 
     static verifyPass(pass, hash) {

@@ -27,7 +27,9 @@ router.post('/cities' ,
 
 router.put('/cities/:id',
     validation(sitiesSchema.paramId, 'params'),
-    urlencoded, authorization,
+    urlencoded,
+    validation(sitiesSchema.updateCity, 'body'),
+    authorization,
     updateSity
 );
 
@@ -71,7 +73,11 @@ async function getCityWithId (req, res, next)  {
     try {
         let id = req.params.id;
         let city = await citiesService.getCityWithId(id);
-        if(!city) throw new Error('bad reques').status = 400;
+        if(!city) {
+            let myErr = new Error('bad reques');
+            myErr.code = 400;
+            throw myErr;
+        }
         let user = await userService.getUserWithId(city.userId);
         let respose = {};
         respose.name = city.name;
@@ -107,7 +113,7 @@ async function addCity(req, res, next) {
     }
 }
 
-async function updateSity(req, res) {
+async function updateSity(req, res, next) {
 
     try {
         let {name, location, population, area, found} = req.body;
