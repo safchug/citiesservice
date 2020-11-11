@@ -15,6 +15,13 @@ const citiesSchema = {
         area: Joi.string().required(),
         found: Joi.string().required()
     }),
+    updateCity: Joi.object({
+        name: Joi.string(),
+        location: Joi.string(),
+        population: Joi.string(),
+        area: Joi.string(),
+        found: Joi.string()
+    }).min(1)
 
 }
 
