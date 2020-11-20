@@ -29,7 +29,7 @@ class User {
 
     async save() {
         //validation
-        let user = await User.getUserIfExist(this.login);
+        let user = await User.getUserIfExist(this.mail);
         if(user) return Promise.reject('taken');
 
         return userService.saveUser(this);

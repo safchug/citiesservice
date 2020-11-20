@@ -5,13 +5,17 @@ exports.fetchExistedData = (obj)=> {
     let updatedFildes = {};
     if (name) {
         updatedFildes.name = name;
-    } else if (location) {
+    }
+    if (location) {
         updatedFildes.location = location;
-    } else if (population) {
+    }
+    if (population) {
         updatedFildes.population = population;
-    } else if (area) {
+    }
+    if (area) {
         updatedFildes.area = area;
-    } else if (found) {
+    }
+    if (found) {
         updatedFildes.found = found;
     }
 

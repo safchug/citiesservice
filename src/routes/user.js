@@ -4,18 +4,22 @@ const User = require("../models/User");
 const jwt = require('../utils/token');
 const validation = require('../midlewares/validation');
 const userSchema = require('../schemas/userSchemas');
+const authorization = require('../midlewares/authorization');
 
 const router = express.Router();
 const urlencoded = bodyParser.urlencoded({extended: true});
 
 router.post('/registration',
     urlencoded,
+    bodyParser.json(),
     validation(userSchema.registration, 'body'),
     rerist);
 
-router.post('/login', urlencoded,
+router.post('/login', bodyParser.json(), urlencoded,
     validation(userSchema.login, 'body'),
     login);
+
+router.post('/auth', authorization, auth);
 
 async function rerist(req, res, next)  {
     try {
@@ -40,7 +44,7 @@ async function login(req, res, next) {
             let isVerified = await User.verifyPass(password, user.hash);
             if (isVerified) {
                 let accessToken = jwt.createAccessToken(user.id);
-                res.json(accessToken);
+                res.json({accessToken, user});
             } else {
                 let myErr = new Error('The passwords don`t match');
                 myErr.code = 401;
@@ -50,6 +54,18 @@ async function login(req, res, next) {
             let myErr = new Error('This user doesnt exist');
             myErr.code = 401;
             throw myErr;
+        }
+    } catch (err) {
+        next(err);
+    }
+}
+
+function auth(req, res, next) {
+    console.log('I was here');
+    try {
+        if(req.user) {
+            let {name} = req.user;
+            res.json({name});
         }
     } catch (err) {
         next(err);

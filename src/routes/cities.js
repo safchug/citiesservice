@@ -20,6 +20,7 @@ router.get('/cities/:id',
 );
 
 router.post('/cities' ,
+    bodyParser.json(),
     urlencoded , authorization,
     validation(sitiesSchema.addCity, 'body'),
     addCity
@@ -27,6 +28,7 @@ router.post('/cities' ,
 
 router.put('/cities/:id',
     validation(sitiesSchema.paramId, 'params'),
+    bodyParser.json(),
     urlencoded,
     validation(sitiesSchema.updateCity, 'body'),
     authorization,
@@ -80,6 +82,7 @@ async function getCityWithId (req, res, next)  {
         }
         let user = await userService.getUserWithId(city.userId);
         let respose = {};
+        respose.id = city.id;
         respose.name = city.name;
         respose.location = city.location;
         respose.population = city.population;

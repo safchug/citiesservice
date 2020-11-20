@@ -12,7 +12,7 @@ module.exports = function(err, req, res, next) {
             res.json({message: 'The password doesnt match'});
         }
     } else  if(err === 'taken') {
-        res.status(403).json({message: 'This user already exists'});
+        res.status(409).json({message: 'This user already exists'});
     } else if(err.code === 403) {
         res.status(403).json({message: 'Action is forbiten'});
     } else {
