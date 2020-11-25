@@ -11,6 +11,8 @@ module.exports = function(err, req, res, next) {
         } else {
             res.json({message: 'The password doesnt match'});
         }
+    } else if(err.code === 404){
+        res.status(404).json({message: 'Not Found'});
     } else  if(err === 'taken') {
         res.status(409).json({message: 'This user already exists'});
     } else if(err.code === 403) {

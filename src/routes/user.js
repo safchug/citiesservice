@@ -64,8 +64,8 @@ function auth(req, res, next) {
     console.log('I was here');
     try {
         if(req.user) {
-            let {name} = req.user;
-            res.json({name});
+            let {id, name} = req.user;
+            res.json({id, name});
         }
     } catch (err) {
         next(err);

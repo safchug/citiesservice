@@ -48,7 +48,9 @@ async function getCityWithQuery(req, res, next)  {
             let citiesList = await citiesService.getCitiesWithQuery(name);
 
             if(citiesList.length === 0) {
-                res.json({message: 'There is no match'});
+                const error = new Error('Not Found');
+                error.code = 404;
+                throw error;
             } else {
                 for(let city of citiesList) {
                     delete city._id;
@@ -88,6 +90,7 @@ async function getCityWithId (req, res, next)  {
         respose.population = city.population;
         respose.area = city.area;
         respose.found = city.found;
+        respose.userId = city.userId;
         respose.user = {};
         respose.user.name = user.name;
         respose.user.mail = user.mail;
