@@ -11,3 +11,6 @@
 - add city
 - delete city
 - update city
+
+##### How to build
+Just run docker-compose up
