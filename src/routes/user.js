@@ -61,7 +61,6 @@ async function login(req, res, next) {
 }
 
 function auth(req, res, next) {
-    console.log('I was here');
     try {
         if(req.user) {
             let {id, name} = req.user;
